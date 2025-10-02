@@ -2,7 +2,6 @@ package api;
 
 import api.dto.in.*;
 import api.dto.out.CandidateResponseDTO;
-import domain.Candidate;
 import domain.CandidateService;
 
 import javax.enterprise.context.ApplicationScoped;

@@ -16,9 +16,18 @@ fi
 
 TAG=$GREEN_CONTAINER_DEPLOY_TAG docker compose up -d "$APP" --scale "$APP=$GREEN_CONTAINERS_SCALE" --no-recreate --no-build
 
-until [ "$(docker ps -q -f "name=${APP}" -f "health=healthy" | wc -l | xargs)" == $GREEN_CONTAINERS_SCALE ]; do
-    sleep 0.1;
-done;
+MAX_RETRIES=300
+RETRIES=0
+
+until [ "$(docker ps -q -f "name=${APP}" -f "health=healthy" | wc -l | xargs)" == "$GREEN_CONTAINERS_SCALE" ]; do
+    sleep 0.1
+    RETRIES=$((RETRIES+1))
+
+    if [ "$RETRIES" -ge "$MAX_RETRIES" ]; then
+        echo "❌ Timeout: containers de ${APP} não ficaram healthy."
+        exit 1
+    fi
+done
 
 if [[ $BLUE_CONTAINERS_SCALE -gt 0 ]]; then
     docker kill --signal=SIGTERM "$BLUE_CONTAINERS"

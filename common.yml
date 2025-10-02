@@ -3,7 +3,15 @@ services:
     environment:
       - QUARKUS_LOG_HANDLER_GELF_HOST=graylog
       - QUARKUS_LOG_HANDLER_GELF_PORT=12201
-      - QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+
+    # OpenTelemetry
+      - OTEL_EXPORTER_OTLP_ENDPOINT=jaeger:4317
+      - OTEL_SERVICE_NAME=election-management
+      - OTEL_INSTRUMENTATION_JDBC_ENABLED=false
+      - OTEL_TRACES_EXPORTER=otlp
+      - JAVA_OPTS=-javaagent:/opentelemetry-javaagent.jar
+    volumes:
+      - ./opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:8080/q/health || exit 1"]
       interval: 5s
